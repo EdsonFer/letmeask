@@ -5,8 +5,17 @@ import logoImg from '../assets/logo.svg';
 
 import styles from '../styles/newRoom.module.scss';
 import { Button } from '../components/Button';
+import { FormEvent, useState } from 'react';
 
 export function NewRoom() {
+	const [newRoom, setNewRoom] = useState('');
+
+	function handleCreateRoom(event: FormEvent) {
+		event.preventDefault();
+
+		console.log(newRoom);
+	}
+
 	return (
 		<div className={styles.pageAuth}>
 			<aside>
@@ -21,8 +30,13 @@ export function NewRoom() {
 
 					<h2>Criar uma Nova Sala</h2>
 
-					<form>
-						<input type="text" placeholder="Nome da Sala" />
+					<form onSubmit={handleCreateRoom}>
+						<input
+							type="text"
+							placeholder="Nome da Sala"
+							onChange={event => setNewRoom(event.target.value)}
+							value={undefined}
+						/>
 						<Button type="submit">Criar Sala</Button>
 					</form>
 
