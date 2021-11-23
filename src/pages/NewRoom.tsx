@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import illustrationImg from '../assets/illustration.svg';
 import logoImg from '../assets/logo.svg';
@@ -7,13 +8,29 @@ import styles from '../styles/newRoom.module.scss';
 import { Button } from '../components/Button';
 import { FormEvent, useState } from 'react';
 
+import { database } from '../services/firebase';
+import { useAuth } from '../contexts/AuthContext';
+
 export function NewRoom() {
+	const { user } = useAuth();
+	const navigate = useNavigate();
 	const [newRoom, setNewRoom] = useState('');
 
-	function handleCreateRoom(event: FormEvent) {
+	async function handleCreateRoom(event: FormEvent) {
 		event.preventDefault();
 
-		console.log(newRoom);
+		if (newRoom.trim() === '') {
+			return;
+		}
+
+		const roomRef = database.ref('rooms');
+
+		const firebaseRoom = await roomRef.push({
+			title: newRoom,
+			authorId: user?.id,
+		});
+
+		navigate(`/rooms/${firebaseRoom.key}`);
 	}
 
 	return (
