@@ -1,19 +1,22 @@
 import { useNavigate } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast';
 
-import illustrationImg from '../assets/illustration.svg';
-import logoImg from '../assets/logo.svg';
-import googleIconImg from '../assets/google-icon.svg';
+import illustrationImg from '../../assets/illustration.svg';
+import logoImg from '../../assets/logo.svg';
+import googleIconImg from '../../assets/google-icon.svg';
 
-import styles from '../styles/auth.module.scss';
-import { Button } from '../components/Button';
-import { useAuth } from '../contexts/AuthContext';
+import styles from './styles.module.scss';
+import { Button } from '../../components/Button';
+import { useAuth } from '../../contexts/AuthContext';
 import { FormEvent, useState } from 'react';
-import { database } from '../services/firebase';
+import { database } from '../../services/firebase';
 
 export function Home() {
 	const { user, signInWithGoogle } = useAuth();
 	const navigate = useNavigate();
 	const [roomCode, setRoomCode] = useState('');
+	const notify = () => toast.error('Room does not exists');
+	const roomClosed = () => toast.error('Room already closed');
 
 	async function handleCreateRoom() {
 		if (!user) {
@@ -33,7 +36,12 @@ export function Home() {
 		const roomRef = await database.ref(`rooms/${roomCode}`).get();
 
 		if (!roomRef.exists()) {
-			alert('Room does not exists');
+			notify();
+			return;
+		}
+
+		if (roomRef.val().endedAt) {
+			roomClosed();
 			return;
 		}
 
@@ -42,6 +50,7 @@ export function Home() {
 
 	return (
 		<div className={styles.pageAuth}>
+			<Toaster position="top-center" reverseOrder={false} />
 			<aside>
 				<img src={illustrationImg} alt="ilustração de perguntas e respostas" />
 				<strong>Crie salas de Q&amp;A ao vivo</strong>
